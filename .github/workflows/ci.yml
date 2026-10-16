@@ -50,10 +50,15 @@ jobs:
           for i in 1 2 3 4 5; do curl -fsS http://127.0.0.1:8025/api/v1/messages | grep -q '"Subject":"ci-mail-check"' && exit 0; sleep 1; done
           exit 1
 
+      - name: Check Redis profile
+        run: |
+          docker compose --profile redis up -d --wait redis
+          docker compose exec -T php php -r '$r = new Redis(); $r->connect(getenv("REDIS_HOST"), (int) getenv("REDIS_PORT")); $r->set("ci", "ok"); exit($r->get("ci") === "ok" ? 0 : 1);'
+
       - name: Logs on failure
         if: failure()
         run: docker compose logs
 
       - name: Stop stack
         if: always()
-        run: docker compose down -v
+        run: docker compose --profile redis down -v

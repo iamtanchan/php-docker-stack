@@ -61,6 +61,7 @@ Point `APP_DIR` at the folder that contains your `public/` directory. The path i
 | MySQL shell | `docker compose exec mysql mysql -u app -p app` |
 | phpMyAdmin (<http://localhost:8081>) | `docker compose --profile tools up -d` |
 | Read sent mail | open <http://localhost:8025> |
+| Redis (`phpredis` is preinstalled; containers get `REDIS_HOST=redis`) | `docker compose --profile redis up -d` |
 | Switch PHP version | change `PHP_VERSION` in `.env`, then `docker compose up -d --build` |
 | Logs | `docker compose logs -f php nginx` |
 | Stop / wipe the database | `docker compose down` / `docker compose down -v` |
@@ -75,7 +76,7 @@ All settings are in [`.env.example`](.env.example).
 | `MYSQL_VERSION` | `8.4` | Any `mysql` image tag |
 | `APP_DIR` | `app` | Nginx serves `$APP_DIR/public` |
 | `HTTP_BIND` / `HTTP_PORT` | `127.0.0.1` / `8080` | Use `0.0.0.0` to test from a phone on your LAN |
-| `MYSQL_PORT` / `PMA_PORT` / `MAILPIT_PORT` | `3306` / `8081` / `8025` | Always bound to `127.0.0.1` |
+| `MYSQL_PORT` / `PMA_PORT` / `MAILPIT_PORT` / `REDIS_PORT` | `3306` / `8081` / `8025` / `6379` | Always bound to `127.0.0.1` |
 | `INSTALL_XDEBUG` | `false` | Rebuild after changing. Start a session with the `XDEBUG_TRIGGER` cookie or query parameter, port 9003 |
 | `UID` / `GID` | `1000` | On Linux, set these to `id -u` / `id -g` |
 | `TZ` | `UTC` | Applied to PHP and MySQL |
@@ -106,6 +107,7 @@ docker compose up -d --wait
 - Laravel は `APP_DIR=laravel` を設定し、`mkdir laravel`、`docker compose up -d --wait`、`docker compose exec php composer create-project laravel/laravel .` の順に実行します。
 - phpMyAdmin は `docker compose --profile tools up -d` で起動します（<http://localhost:8081>）。
 - 送信メールはすべて Mailpit が受け取り、<http://localhost:8025> で確認できます（外部には送信されません）。
+- Redis は `docker compose --profile redis up -d` で起動します（`phpredis` 拡張はインストール済み、`REDIS_HOST=redis`）。
 
 ## License
 
