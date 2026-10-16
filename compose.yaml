@@ -17,11 +17,16 @@ services:
       DB_DATABASE: ${MYSQL_DATABASE:-app}
       DB_USERNAME: ${MYSQL_USER:-app}
       DB_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env (cp .env.example .env)}
+      MAIL_MAILER: smtp
+      MAIL_HOST: mailpit
+      MAIL_PORT: 1025
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
       mysql:
         condition: service_healthy
+      mailpit:
+        condition: service_started
 
   nginx:
     image: nginx:1.28-alpine
@@ -57,6 +62,12 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
       - ./docker/mysql/initdb:/docker-entrypoint-initdb.d:ro
+
+  # Catches all outgoing mail; view it at http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports:
+      - "127.0.0.1:${MAILPIT_PORT:-8025}:8025"
 
   phpmyadmin:
     image: phpmyadmin:5.2
