@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Weekly, to catch upstream image changes that break the build
+    - cron: "0 3 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  stack:
+    name: PHP ${{ matrix.php }}${{ matrix.xdebug == 'true' && ' + Xdebug' || '' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ["7.4", "8.1", "8.2", "8.3", "8.4", "8.5"]
+        xdebug: ["false"]
+        include:
+          - php: "8.4"
+            xdebug: "true"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure .env
+        run: |
+          cp .env.example .env
+          sed -i "s/^PHP_VERSION=.*/PHP_VERSION=${{ matrix.php }}/" .env
+          sed -i "s/^INSTALL_XDEBUG=.*/INSTALL_XDEBUG=${{ matrix.xdebug }}/" .env
+          sed -i "s/^UID=.*/UID=$(id -u)/; s/^GID=.*/GID=$(id -g)/" .env
+
+      - name: Start stack
+        run: docker compose up -d --build --wait
+
+      - name: Check PHP, MySQL and nginx
+        run: |
+          page=$(curl -fsS http://127.0.0.1:8080/)
+          echo "$page" | grep -q "id=\"php\">PHP ${{ matrix.php }}\."
+          echo "$page" | grep -q 'id="db">MySQL '
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/.env)" = 403
+          if [ "${{ matrix.xdebug }}" = "true" ]; then docker compose exec -T php php -m | grep -qi xdebug; fi
+
+      - name: Logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Stop stack
+        if: always()
+        run: docker compose down -v
