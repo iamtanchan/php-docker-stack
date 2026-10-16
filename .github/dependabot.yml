@@ -1,0 +1,14 @@
+version: 2
+updates:
+  # actions/checkout and other workflow actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+
+  # nginx / phpMyAdmin image tags in compose.yaml
+  # (PHP and MySQL versions are user-selected via .env and are not bumped)
+  - package-ecosystem: "docker-compose"
+    directory: "/"
+    schedule:
+      interval: "monthly"
