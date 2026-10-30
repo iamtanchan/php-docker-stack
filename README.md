@@ -29,6 +29,8 @@ docker compose up -d --wait
 
 Open <http://localhost:8080>. The starter page shows the PHP version, the MySQL connection and the loaded extensions.
 
+![Starter page showing PHP 8.4, MySQL 8.4 and the loaded extensions](docs/starter-page.png)
+
 ## New Laravel project
 
 ```sh
