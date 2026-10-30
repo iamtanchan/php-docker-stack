@@ -14,6 +14,7 @@ Pick any PHP version from **7.4 to 8.5** with one line in `.env`.
 - **Runs several projects side by side.** There are no hard-coded container names, and every host port is configurable.
 - **No root-owned files.** PHP-FPM and Composer run as a user whose UID/GID match yours.
 - **Ready for Laravel.** Includes `pdo_mysql`, `bcmath`, `gd`, `intl`, `zip`, `exif`, `pcntl` and `opcache`, plus Composer 2. Xdebug is one setting away.
+- **Mail never leaves your machine.** [Mailpit](https://mailpit.axllent.org/) catches everything sent with Laravel's mailer or PHP's `mail()`. Read it at <http://localhost:8025>.
 
 ## Quick start
 
@@ -41,7 +42,7 @@ docker compose up -d --wait
 docker compose exec php composer create-project laravel/laravel .
 ```
 
-The containers already provide `DB_CONNECTION=mysql`, `DB_HOST`, `DB_DATABASE`, `DB_USERNAME` and `DB_PASSWORD`. Laravel uses them over its own `.env`, so migrations run against MySQL with no extra configuration:
+The containers already provide `DB_CONNECTION=mysql`, `DB_HOST`, `DB_DATABASE`, `DB_USERNAME` and `DB_PASSWORD`, plus `MAIL_MAILER=smtp`, `MAIL_HOST=mailpit` and `MAIL_PORT=1025`. Laravel uses them over its own `.env`, so migrations run against MySQL and mail goes to Mailpit with no extra configuration:
 
 ```sh
 docker compose exec php php artisan migrate
@@ -59,6 +60,7 @@ Point `APP_DIR` at the folder that contains your `public/` directory. The path i
 | Composer / Artisan | `docker compose exec php composer install` · `docker compose exec php php artisan ...` |
 | MySQL shell | `docker compose exec mysql mysql -u app -p app` |
 | phpMyAdmin (<http://localhost:8081>) | `docker compose --profile tools up -d` |
+| Read sent mail | open <http://localhost:8025> |
 | Switch PHP version | change `PHP_VERSION` in `.env`, then `docker compose up -d --build` |
 | Logs | `docker compose logs -f php nginx` |
 | Stop / wipe the database | `docker compose down` / `docker compose down -v` |
@@ -73,7 +75,7 @@ All settings are in [`.env.example`](.env.example).
 | `MYSQL_VERSION` | `8.4` | Any `mysql` image tag |
 | `APP_DIR` | `app` | Nginx serves `$APP_DIR/public` |
 | `HTTP_BIND` / `HTTP_PORT` | `127.0.0.1` / `8080` | Use `0.0.0.0` to test from a phone on your LAN |
-| `MYSQL_PORT` / `PMA_PORT` | `3306` / `8081` | Always bound to `127.0.0.1` |
+| `MYSQL_PORT` / `PMA_PORT` / `MAILPIT_PORT` | `3306` / `8081` / `8025` | Always bound to `127.0.0.1` |
 | `INSTALL_XDEBUG` | `false` | Rebuild after changing. Start a session with the `XDEBUG_TRIGGER` cookie or query parameter, port 9003 |
 | `UID` / `GID` | `1000` | On Linux, set these to `id -u` / `id -g` |
 | `TZ` | `UTC` | Applied to PHP and MySQL |
@@ -103,6 +105,7 @@ docker compose up -d --wait
 - コンテナ名を固定していないので、複数プロジェクトを同時に起動できます。
 - Laravel は `APP_DIR=laravel` を設定し、`mkdir laravel`、`docker compose up -d --wait`、`docker compose exec php composer create-project laravel/laravel .` の順に実行します。
 - phpMyAdmin は `docker compose --profile tools up -d` で起動します（<http://localhost:8081>）。
+- 送信メールはすべて Mailpit が受け取り、<http://localhost:8025> で確認できます（外部には送信されません）。
 
 ## License
 

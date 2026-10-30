@@ -44,6 +44,12 @@ jobs:
           test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/.env)" = 403
           if [ "${{ matrix.xdebug }}" = "true" ]; then docker compose exec -T php php -m | grep -qi xdebug; fi
 
+      - name: Check mail() reaches Mailpit
+        run: |
+          docker compose exec -T php php -r 'exit(mail("dev@example.test", "ci-mail-check", "hello", "From: ci@example.test") ? 0 : 1);'
+          for i in 1 2 3 4 5; do curl -fsS http://127.0.0.1:8025/api/v1/messages | grep -q '"Subject":"ci-mail-check"' && exit 0; sleep 1; done
+          exit 1
+
       - name: Logs on failure
         if: failure()
         run: docker compose logs
