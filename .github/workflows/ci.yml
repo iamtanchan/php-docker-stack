@@ -24,7 +24,7 @@ jobs:
           - php: "8.4"
             xdebug: "true"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Configure .env
         run: |
