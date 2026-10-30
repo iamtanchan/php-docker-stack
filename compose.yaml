@@ -65,7 +65,7 @@ services:
 
   # Catches all outgoing mail; view it at http://localhost:8025
   mailpit:
-    image: axllent/mailpit:v1.27
+    image: axllent/mailpit:v1.32
     ports:
       - "127.0.0.1:${MAILPIT_PORT:-8025}:8025"
 
