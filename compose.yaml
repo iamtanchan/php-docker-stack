@@ -20,6 +20,8 @@ services:
       MAIL_MAILER: smtp
       MAIL_HOST: mailpit
       MAIL_PORT: 1025
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -69,6 +71,20 @@ services:
     ports:
       - "127.0.0.1:${MAILPIT_PORT:-8025}:8025"
 
+  # Opt-in: docker compose --profile redis up -d
+  redis:
+    image: redis:7-alpine
+    profiles: ["redis"]
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - redis-data:/data
+
   phpmyadmin:
     image: phpmyadmin:5.2
     profiles: ["tools"]
@@ -82,3 +98,4 @@ services:
 
 volumes:
   mysql-data:
+  redis-data:

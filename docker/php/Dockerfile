@@ -10,7 +10,7 @@ COPY --from=mlocati/php-extension-installer:2 /usr/bin/install-php-extensions /u
 
 # Extensions commonly needed by Laravel, Symfony and plain PDO apps.
 # install-php-extensions picks versions compatible with the chosen PHP_VERSION.
-RUN install-php-extensions bcmath exif gd intl opcache pcntl pdo_mysql mysqli zip \
+RUN install-php-extensions bcmath exif gd intl opcache pcntl pdo_mysql mysqli redis zip \
     && if [ "$INSTALL_XDEBUG" = "true" ]; then install-php-extensions xdebug; fi \
     && apk add --no-cache git unzip tzdata
 
